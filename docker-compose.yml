@@ -1,0 +1,44 @@
+version: "3.9"
+
+services:
+  hapi-server:
+    image: hapiproject/hapi:latest
+    mem_limit: "4G"
+    restart: always
+    networks:
+      - backend
+    ports:
+      - 127.0.0.1:8082:8080
+    volumes:
+      - ./application.yaml:/data/hapi/application.yaml
+      - ./luceneIndex:/opt/hapi_lucenefiles
+    environment:
+      SPRING_CONFIG_LOCATION: 'file:///data/hapi/application.yaml'
+      JAVA_OPTS: -Xms512m -Xmx4g
+
+  hapi-postgres-db:
+    image: postgres:14
+    networks:
+      - backend
+    volumes:
+      - fhir_postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: hapi
+      POSTGRES_USER: hapi
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+    secrets:
+      - db_password
+networks:
+  backend:
+    name: backend
+
+volumes:
+  fhir_postgres_data:
+    driver: local
+
+secrets:
+  db_password:
+    file: db_password.secret
+
+
+
