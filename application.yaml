@@ -11,8 +11,8 @@ spring:
     #allow-bean-definition-overriding: true
   flyway:
     enabled: false
-    check-location: false
     baselineOnMigrate: true
+    fail-on-missing-locations: false
   datasource:
     url: 'jdbc:postgresql://hapi-postgres-db:5432/hapi'
     #url: jdbc:h2:mem:test_mem
@@ -32,7 +32,7 @@ spring:
       #Hibernate dialect is automatically detected except Postgres and H2.
       #If using H2, then supply the value of ca.uhn.fhir.jpa.model.dialect.HapiFhirH2Dialect
       #If using postgres, then supply the value of ca.uhn.fhir.jpa.model.dialect.HapiFhirPostgres94Dialect
-      hibernate.dialect: ca.uhn.fhir.jpa.model.dialect.HapiFhirPostgres94Dialect
+      hibernate.dialect: ca.uhn.fhir.jpa.model.dialect.HapiFhirPostgresDialect
       #      hibernate.hbm2ddl.auto: update
       #      hibernate.jdbc.batch_size: 20
       #      hibernate.cache.use_query_cache: false
@@ -76,12 +76,14 @@ hapi:
     ### forces the use of the https:// protocol for the returned server address.
     ### alternatively, it may be set using the X-Forwarded-Proto header.
     #   use_apache_address_strategy_https: false
-    ### enables the server to host content like HTML, css, etc. under the url pattern of eg. /static/**
-    # staticLocationPrefix: /static
-    ### the deepest folder level will be used. E.g. - if you put file:/foo/bar/bazz as value then the files are resolved under /static/bazz/**
-    #staticLocation: file:/foo/bar/bazz
+    ### enables the server to overwrite defaults on HTML, css, etc. under the url pattern of eg. /content/custom **
+    ### Folder with custom content MUST be named custom. If omitted then default content applies
+    #custom_content_path: ./custom
+    ### enables the server host custom content. If e.g. the value ./configs/app is supplied then the content
+    ### will be served under /web/app
+    #app_content_path: ./configs/app
     ### enable to set the Server URL
-    server_address: http://127.0.0.1:8080/fhir
+    #    server_address: http://hapi.fhir.org/baseR4
     #    defer_indexing_for_codesystems_of_size: 101
     #    install_transitive_ig_dependencies: true
     #implementationguides:
@@ -125,21 +127,32 @@ hapi:
     advanced_lucene_indexing: false
     bulk_export_enabled: false
     bulk_import_enabled: false
+    #    language_search_parameter_enabled: true
     #    enforce_referential_integrity_on_delete: false
     # This is an experimental feature, and does not fully support _total and other FHIR features.
     #    enforce_referential_integrity_on_delete: false
     #    enforce_referential_integrity_on_write: false
     #    etag_support_enabled: true
     #    expunge_enabled: true
-    client_id_strategy: ANY
+    #    client_id_strategy: ALPHANUMERIC
+    #    server_id_strategy: SEQUENTIAL_NUMERIC
     #    fhirpath_interceptor_enabled: false
     #    filter_search_enabled: true
     #    graphql_enabled: true
     narrative_enabled: false
     mdm_enabled: false
+    mdm_rules_json_location: "mdm-rules.json"
     #    local_base_urls:
     #      - https://hapi.fhir.org/baseR4
-    mdm_enabled: false
+    logical_urls:
+      - http://terminology.hl7.org/*
+      - https://terminology.hl7.org/*
+      - http://snomed.info/*
+      - https://snomed.info/*
+      - http://unitsofmeasure.org/*
+      - https://unitsofmeasure.org/*
+      - http://loinc.org/*
+      - https://loinc.org/*
     #    partitioning:
     #      allow_references_across_partitions: false
     #      partitioning_include_in_search_hashes: false
@@ -162,6 +175,11 @@ hapi:
     # or will be instantiated via reflection using an no-arg contructor; then registered with the server
     #custom-interceptor-classes:
 
+    # comma-separated list of fully qualified provider classes.
+    # classes listed here will be fetched from the Spring context when combined with 'custom-bean-packages',
+    # or will be instantiated via reflection using an no-arg contructor; then registered with the server
+    #custom-provider-classes:
+
     # Threadpool size for BATCH'ed GETs in a bundle.
     #    bundle_batch_pool_size: 10
     #    bundle_batch_pool_max_size: 50
@@ -182,7 +200,7 @@ hapi:
     tester:
       home:
         name: Local Tester
-        server_address: 'http://127.0.0.1:8080/fhir'
+        server_address: 'http://localhost:8080/fhir'
         refuse_to_fetch_third_party_urls: false
         fhir_version: R4
       global:
