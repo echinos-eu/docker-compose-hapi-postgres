@@ -32,7 +32,7 @@ spring:
       #Hibernate dialect is automatically detected except Postgres and H2.
       #If using H2, then supply the value of ca.uhn.fhir.jpa.model.dialect.HapiFhirH2Dialect
       #If using postgres, then supply the value of ca.uhn.fhir.jpa.model.dialect.HapiFhirPostgres94Dialect
-      hibernate.dialect: ca.uhn.fhir.jpa.model.dialect.HapiFhirPostgresDialect
+      hibernate.dialect: ca.uhn.fhir.jpa.model.dialect.HapiFhirPostgres94Dialect
       #      hibernate.hbm2ddl.auto: update
       #      hibernate.jdbc.batch_size: 20
       #      hibernate.cache.use_query_cache: false
@@ -86,7 +86,12 @@ hapi:
     #    server_address: http://hapi.fhir.org/baseR4
     #    defer_indexing_for_codesystems_of_size: 101
     #    install_transitive_ig_dependencies: true
-    #implementationguides:
+    implementationguides:
+      basisprofile:
+        packageUrl: file:///app/igs/de.basisprofil.r4-1.5.0-ballot2.tgz
+        name: de.basisprofil.r4
+        version: 1.5.0-ballot2
+        installMode: STORE_AND_INSTALL
       ###    example from registry (packages.fhir.org)
     #  swiss:
     #    name: swiss.mednet.fhir

@@ -1,6 +1,6 @@
 services:
   hapi-server:
-    image: hapiproject/hapi:v7.0.2
+    image: hapiproject/hapi:v7.0.3
     mem_limit: "4G"
     restart: always
     depends_on:
@@ -9,6 +9,9 @@ services:
       - backend
     ports:
       - 127.0.0.1:8080:8080
+    configs:
+      - source: igs
+        target: /app/igs
     volumes:
       - ./application.yaml:/data/hapi/application.yaml
       - ./luceneIndex:/opt/hapi_lucenefiles
@@ -41,5 +44,7 @@ secrets:
   db_password:
     file: db_password.secret
 
-
+configs:
+  igs:
+    file: ./igs
 
