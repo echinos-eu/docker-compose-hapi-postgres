@@ -1,6 +1,6 @@
 services:
   hapi-server:
-    image: hapiproject/hapi:v7.0.3
+    image: hapiproject/hapi:v7.4.0
     mem_limit: "4G"
     restart: always
     depends_on:
