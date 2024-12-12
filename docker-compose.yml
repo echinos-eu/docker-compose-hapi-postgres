@@ -1,6 +1,6 @@
 services:
   hapi-server:
-    image: hapiproject/hapi:v7.4.0
+    image: hapiproject/hapi:v7.6.0
     mem_limit: "4G"
     restart: always
     depends_on:
@@ -10,13 +10,13 @@ services:
     ports:
       - 127.0.0.1:8080:8080
     configs:
+      - source: hapi
+        target: /app/config/application.yaml
       - source: igs
         target: /app/igs
     volumes:
-      - ./application.yaml:/data/hapi/application.yaml
-      - ./luceneIndex:/opt/hapi_lucenefiles
+      - .luceneIndex:/opt/hapi_lucenefiles
     environment:
-      SPRING_CONFIG_LOCATION: 'file:///data/hapi/application.yaml'
       JAVA_OPTS: -Xms512m -Xmx4g
 
   hapi-postgres-db:
@@ -24,6 +24,8 @@ services:
     restart: always
     networks:
       - backend
+    ports:
+      - 127.0.0.1:5432:5432
     volumes:
       - fhir_postgres_data:/var/lib/postgresql/data
     environment:
@@ -35,7 +37,6 @@ services:
 networks:
   backend:
     name: backend
-
 volumes:
   fhir_postgres_data:
     driver: local
@@ -47,4 +48,6 @@ secrets:
 configs:
   igs:
     file: ./igs
+  hapi:
+    file: ./application.yaml
 
